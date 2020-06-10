@@ -5,17 +5,28 @@ const express = require('express');
 //Mongoose library is to talk with mongoDB
 const mongoose = require('mongoose');
 
+//importing 3 modules to route
+const users = require('./routes/api/users');
+const posts = require('./routes/api/posts');
+const profile = require('./routes/api/profile');
+
+//importing Body-parser
+const bodyparser = require('body-parser');
+
 //creating an instance of express to use it
 const app = express();
+
+//body parser configuration
+// app.use(express.json);
+// app.use(express.urlencoded({extended : true}));
+app.use(bodyparser.urlencoded({extended : false}));
+app.use(bodyparser.json());
+
 
 //getting connection string to talk to DB so importing key.js which has connection string mongoURI
 const db= require('./config/key').mongoURI;
 
 
-//importing 3 modules to route
-const users = require('./routes/api/users');
-const posts = require('./routes/api/posts');
-const profile = require('./routes/api/profile');
 
 //connect to mongoDB
 mongoose
