@@ -16,11 +16,9 @@ const bodyparser = require('body-parser');
 //creating an instance of express to use it
 const app = express();
 
-//body parser configuration
-// app.use(express.json);
-// app.use(express.urlencoded({extended : true}));
-app.use(bodyparser.urlencoded({extended : false}));
-app.use(bodyparser.json());
+
+app.use(bodyparser.urlencoded({extended : false})); // for parsing application/x-www-form-urlencoded
+app.use(bodyparser.json()); // for parsing application/json
 
 
 //getting connection string to talk to DB so importing key.js which has connection string mongoURI
@@ -31,8 +29,11 @@ const db= require('./config/key').mongoURI;
 //connect to mongoDB
 mongoose
     .connect(db,{ useNewUrlParser: true, useUnifiedTopology: true})
-    .then(()=> console.log("MongoDB connected"))
-    .catch(err => console.log(err));
+    .then(()=> console.log("Successfully connected to the database"))
+    .catch(err => {
+        console.log('Could not connect to the database. Exiting now...', err);
+        process.exit();
+    });
 
 
 //lets swrite our first get route main home page arrow statement (req,res)
