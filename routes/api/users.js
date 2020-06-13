@@ -44,7 +44,11 @@ function createUser(req, res) {
   });
   newUser.save()
     .then(user => res.json(user))
-    .catch(err => console.log(err));
+    .catch(err =>{
+      res.status(500).send({
+          message: err.message || "Some error occurred while creating the User."
+      });
+  });
 }
 
 
