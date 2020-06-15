@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const users = require('./routes/api/users');
 const posts = require('./routes/api/posts');
 const profile = require('./routes/api/profile');
+const passport = require('passport');//decoding the token from request header
 
 //importing Body-parser
 const bodyparser = require('body-parser');
@@ -20,11 +21,14 @@ const app = express();
 app.use(bodyparser.urlencoded({extended : false})); // for parsing application/x-www-form-urlencoded
 app.use(bodyparser.json()); // for parsing application/json
 
+//initializes the passport configuration.
+app.use(passport.initialize());
 
-//getting connection string to talk to DB so importing key.js which has connection string mongoURI
-const db= require('./config/key').mongoURI;
+//imports our passport file which holds our verification callback called passport and execute the callback
+require('./config/passport')(passport);
 
-
+//getting connection string to talk to DB so importing keys.js which has connection string mongoURI
+const db= require('./config/keys').mongoURI;
 
 //connect to mongoDB
 mongoose
