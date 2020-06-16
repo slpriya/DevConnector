@@ -2,8 +2,8 @@
 //Importing express for routing purpose
 const express = require('express');
 
-//Mongoose library is to talk with mongoDB
-const mongoose = require('mongoose');
+// Configures the database and opens a global connection that can be used in any module with `mongoose.connection`
+require('./config/database');
 
 //importing 3 modules to route
 const users = require('./routes/api/users');
@@ -27,17 +27,9 @@ app.use(passport.initialize());
 //imports our passport file which holds our verification callback called passport and execute the callback
 require('./config/passport')(passport);
 
-//getting connection string to talk to DB so importing keys.js which has connection string mongoURI
-const db= require('./config/keys').mongoURI;
 
-//connect to mongoDB
-mongoose
-    .connect(db,{ useNewUrlParser: true, useUnifiedTopology: true})
-    .then(()=> console.log("Successfully connected to the database"))
-    .catch(err => {
-        console.log('Could not connect to the database. Exiting now...', err);
-        process.exit();
-    });
+
+
 
 
 //lets swrite our first get route main home page arrow statement (req,res)
@@ -54,4 +46,4 @@ app.use('/api/posts',posts);
 const port = 8000;
 
 // ask express to listen on the port 
-app.listen(port , () => console.log(`Server is tunning on port ${port}`));
+app.listen(port , console.log(`Server is tunning on port ${port}`));

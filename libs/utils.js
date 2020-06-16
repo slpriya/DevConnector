@@ -14,20 +14,14 @@ function issueJWT(user) {
     iat: Date.now()
   };
 
-  const expiresIn = '1d';
+  const options = { expiresIn: '1d' }
   //sign Token Create Token
-  jwt.sign(payload, keys.secretOrKey, { expiresIn: expiresIn }, (err, token) => {
+  const signedToken = jwt.sign(payload, keys.secretOrKey, options);
 
-    if (err) {
-     return { 
-       error: "Error signing token", raw: err
-     };
-    }
-    return {
-      token: 'Bearer ' + token,
-      expires: expiresIn
-    };
-  });
+  return {
+    token: 'Bearer ' + signedToken,
+    expires: options.expiresIn
+  }
 
 }
 

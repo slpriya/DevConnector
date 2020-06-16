@@ -15,7 +15,7 @@ const opts ={
 const strategy = new JwtStrategy(opts , (jwt_payload , done) =>{    
   console.log(jwt_payload);
   // The function checks if the user is a legitimate user in the database once the token is decoded.
-  User.findOne({id: jwt_payload.id})
+  User.findOne({_id: jwt_payload.id})
       .then( (user) =>{
         if(user) {  //If the user is real, it passes the user to done
           return  done(null, user); //no err as null and user object
