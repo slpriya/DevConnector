@@ -2,8 +2,8 @@ const express = require('express');//Importing express for routing purpose
 const User = require('../../models/User');//importing user schema
 const gravatar = require('gravatar');//import gravatar
 const bcrypt = require('bcryptjs'); //for encryption
-const jwt = require('jsonwebtoken');//for generating Bearer Token
-const keys = require('../../config/keys');
+const utils = require('../../libs/utils');
+const passport = require('passport');
 //creating an instance of express to use its Router package to route it.
 const router = express.Router();
 
@@ -59,7 +59,12 @@ function saveDocument(newUser, res) {
       newUser.password = hash; //assign the hashed password to the user obj
       //inserting into db
       newUser.save()
-        .then(user => res.json(user))
+        .then( (user) => {
+          // Validate an existing user and issue a JWT
+          const tokenObject = utils.issueJWT(user);
+          res.status(200).json({ success: true, user : user, token: tokenObject.token , expireIn : tokenObject.expires});   
+          // res.json(user);
+        })
         .catch(err => {
           res.status(500).send({
             message: err.message || "Some error occurred while creating the User."
@@ -82,7 +87,7 @@ router.post('/login', (req, res) => {
   User.findOne({ email })//email:email jsdeconstruction
     .then(user => {
       if (!user) {//couldn't find user
-        return res.status(404).json({ email: "User not found" });
+        return res.status(401).json({ email: "User not found" });
       }
       //check password is valid comapre give password with password stored in DB(Hashed version)
       comparePassword(password, user, res);
@@ -97,25 +102,25 @@ function comparePassword(password, user, res) {
   bcrypt.compare(password, user.password, (err, success) => {
     if (err) throw err;
     if (success) {
-      //create payload
-      const payload = {
-        id: user.id,
-        email: user.email,
-        date: user.date
-      };
-      //sign Token Create Token
-      jwt.sign(payload, keys.secretOrKey, { expiresIn: '1h' }, (err, token) => {
-        if (err) {
-          res.status(500).json({ error: "Error signing token", raw: err });
-        }
-        return res.json({
-          token: 'Bearer ' + token
-        });
-      });
+      // Validate an existing user and issue a JWT
+      const tokenObject = utils.issueJWT(user);
+      res.status(200).json({ success: true, token: tokenObject.token ,  user , expireIn : tokenObject.expires});      
     } else {
-      return res.status(400).json({ password: 'Password incorrect' });
+      return res.status(400).json({ password: 'You entered the wrong password' });
     }
   });
 }
+
+
+
+// @route   Get /api/users/current
+// @desc    Return Current User
+// @access  private
+router.get('/current', passport.authenticate('jwt' , {session : false}), (req, res) => {
+
+  console.log("get");
+  res.json({message : 'You are  authorized!'});
+})
+
 
 module.exports = router;
